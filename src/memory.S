@@ -608,7 +608,12 @@ tlbm_exception:
     mtc0 k0, $14 // EPC
     nop
     nop
-    eret
+    eret    bgeu t0, 0x6000 - 0x2100, read_extension
+.align 5
+read_extension
+    sll  t0, t0, 2 // Word offset
+    lbu  v0, 0xAA008400(t0)
+    jr   ra
 
 .align 5
 read_unk:
@@ -632,8 +637,10 @@ read_wmdata: // v0: value
     jr ra
 
 .align 5
+write_extension:
+    sll  t0, t0, 2 // Word offset
+    sb   a1, 0xAA008400(t0)
 write_unk:
-    // Unknown I/O register write; do nothing
     jr ra
 
 .align 5
