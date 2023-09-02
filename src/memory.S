@@ -599,7 +599,7 @@ io_read8: // a0: address - v0: value
 read_extension:
     bgeu t0, 0x7FAF - 0x2100, read_unk
     sll  t0, t0, 2 // Word offset
-    lbu  v0, 0xAA008400(t0)
+    lhu  v0, 0xAA008400(t0)
     jr   ra
 
 .align 5
@@ -638,7 +638,19 @@ io_write8: // a0: address, a1: value
 write_extension:
     bgeu t0, 0x7FAF - 0x2100, write_unk
     sll  t0, t0, 2 // Word offset
-    sb   a1, 0xAA008400(t0)
+    sb   a1, 0xAA008400(t0) // (0x2100 << 2) = 0x8400 this is added to t0 as t0 is lowered by 0x2100.
+    lui  t2, 0xA460     // PI register upper address
+pi_wait1:
+    // Wait for the IO to complete
+    lw   t1, 0x0010(t2) // PI_STATUS
+    andi t1, t1, 0x1    // DMA busy
+    bnez t1, pi_wait1
+pi_wait2:
+    lhu  t3, 0xAA008400(t0)
+    andi t3, t3, 0xFF
+    andi t4, a1, 0xFF
+    bne  t3, t4, pi_wait2
+
 write_unk:
     // Unknown I/O register write; do nothing
     //sb   a1, 0xA8000000(t0)
