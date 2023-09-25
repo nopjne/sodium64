@@ -31,20 +31,20 @@
 
 .data
 
-sram: .dword 0:0x1000 // Aligned
-tlb_align: .byte 0:0x1000
-wram: .byte 0:0x20000
+.align 8
+sram:  .byte 0:0x8000
+.byte 0:0x1000 // Alignment
+wram:  .byte 0:0x20000
 empty: .byte 0:0x2000
 
-memory_map: .word 0:0x800
-rom_addrs: .word 0:0x100
+memory_map:  .word 0:0x800
+rom_addrs:   .word 0:0x100
 rom_entries: .word 0:0x100
-rom_pointer: .byte 0
-sram_dirty: .byte 0
+rom_pointer: .byte 0x00
+sram_dirty:  .byte 0x00
 
-wmadd: .word 0
+wmadd: .word 0x000000
 
-.align 5
 read_iomap:
     .word read_unk:(0x2133 - 0x20FF) // 0x2100-0x2133
     .word read_mpyl, read_mpym, read_mpyh, read_slhv // 0x2134-0x2137
@@ -107,6 +107,8 @@ read_iomap:
     .word read_a1bx, read_dasxl, read_dasxh, read_dasbx // 0x4374-0x4377
     .word read_a2axl, read_a2axh, read_ntrlx, read_unusedx // 0x4378-0x437B
     .word read_unk, read_unk, read_unk, read_unusedx // 0x437C-0x437F
+    .word read_unk:(0x5FFF - 0x437F)                            // 0x4378-0x5FFF
+    .word read_extension:(0x7FAF - 0x5FFF)                      // 0x6000-0x7FAF
 
 write_iomap:
     .word write_inidisp, write_obsel, write_oamaddl, write_oamaddh // 0x2100-0x2103
@@ -177,6 +179,8 @@ write_iomap:
     .word write_a1bx, write_dasxl, write_dasxh, write_dasbx // 0x4374-0x4377
     .word write_a2axl, write_a2axh, write_ntrlx, write_unusedx // 0x4378-0x437B
     .word write_unk, write_unk, write_unk, write_unusedx // 0x437C-0x437F
+    .word write_unk:(0x5FFF - 0x437F)                                 // 0x4378-0x5FFF
+    .word write_extension:(0x7FAF - 0x5FFF)                           // 0x6000-0x7FAF
 
 .text
 
@@ -649,7 +653,8 @@ pi_wait2:
     lhu  t3, 0xAA008400(t0)
     andi t3, t3, 0xFF
     andi t4, a1, 0xFF
-    bne  t3, t4, pi_wait2
+    bne  t3, t4, pi_wait1
+    jr   ra
 
 write_unk:
     // Unknown I/O register write; do nothing
