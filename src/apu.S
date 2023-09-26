@@ -75,6 +75,14 @@ apu_stack: .hword 0x1FF
 apu_flags: .byte 0
 apu_count: .hword 0xFFC0
 
+    .word apu_orimm,  apu_ordr2,  apu_unk,    apu_asldir, apu_aslabs, apu_php,    apu_tset1,  apu_brk    // 0x08-0x0F
+    .word apu_andimm, apu_anddr2, apu_unk,    apu_roldir, apu_rolabs, apu_pha,    apu_cbnea,  apu_bra    // 0x28-0x2F
+    .word apu_eorimm, apu_eordr2, apu_unk,    apu_lsrdir, apu_lsrabs, apu_phx,    apu_tclr1,  apu_pcall  // 0x48-0x4F
+    .word apu_cmpimm, apu_cmpdr2, apu_unk,    apu_rordir, apu_rorabs, apu_phy,    apu_dbnza,  apu_ret    // 0x68-0x6F
+    .word apu_adcimm, apu_adcdr2, apu_unk,    apu_decdir, apu_decabs, apu_mvyimm, apu_ppp,    apu_movdri // 0x88-0x8F
+    .word apu_sbcimm, apu_sbcdr2, apu_unk,    apu_incdir, apu_incabs, apu_cpyimm, apu_ppa,    apu_amvbxp // 0xA8-0xAF
+    .word apu_cpximm, apu_xmvabs, apu_unk,    apu_ymvdir, apu_ymvabs, apu_mvximm, apu_ppx,    apu_mul    // 0xC8-0xCF
+    .word apu_mvaimm, apu_mvxabs, apu_unk,    apu_mvydir, apu_mvyabs, apu_notc,   apu_ppy,    apu_unk    // 0xE8-0xEF
 .align 5
 read_iomap:
     .word read_unk, read_unk, read_dspaddr, read_dspdata // 0xF0-0xF3
