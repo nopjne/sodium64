@@ -576,17 +576,30 @@ tlbm_exception:
 
 .align 5
 sram_read8: // t0: address - v0: value
+    sll  t0, a0, 2 // Word offset
+    lhu  v0, 0xAA000000(t0)
+    jr   ra
+    //sll  t0, a0, 2 // Word offset
+    //sb   a1, 0xAA000000(t0)
     // Read an 8-bit value from SRAM
     lbu v0, UNCACHED(sram)(t0)
-    jr ra
+    //jr   ra
 
 .align 5
 sram_write8: // t0: address, a1: value
+    sll  t0, a0, 2 // Word offset
+    sb   a1, 0xAA000000(t0)
+//   pi_wait2:
+//   lhu  t3, 0xAA000000(t0)
+//   andi t3, t3, 0xFF
+//   andi t4, a1, 0xFF
+//   bne  t3, t4, pi_wait2
+    jr   ra
     // Write an 8-bit value to SRAM and mark it as dirty
     sb a1, UNCACHED(sram)(t0) // Uncached
-    li t0, 1
-    sb t0, sram_dirty
-    jr ra
+    // li   t0, 1
+    // sb   t0, sram_dirty
+    // jr   ra
 
 .align 5
 io_read8: // a0: address - v0: value
