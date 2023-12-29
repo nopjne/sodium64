@@ -185,10 +185,10 @@ write_iomap:
 memory_init:
     // Detect HiROM headers with a rudimentary checksum check
     // TODO: improve this?
-    lw t0, 0xB020FFDC
+    lw   t0, 0xB0113FDC
     andi t1, t0, 0xFFFF
-    srl t0, t0, 16
-    xor t0, t0, t1
+    srl  t0, t0, 16
+    xor  t0, t0, t1
     xori t0, t0, 0xFFFF
     beqz t0, map_hirom
     b map_lorom
@@ -201,11 +201,11 @@ map_lorom:
     li t2, 0x2000 // Block size (8KB)
 
     // Set the SRAM mask using the header size
-    lw t9, 0xB0207FD8
-    srl t9, t9, 24
+    lw   t9, 0xB010BFD8
+    srl  t9, t9, 24
     beqz t9, build_lomap
-    li t3, 0x400
-    sll t9, t3, t9
+    li   t3, 0x400
+    sll  t9, t3, t9
     addi t9, t9, -1
 
 build_lomap:
@@ -244,15 +244,15 @@ lowram_area:
 
 lorom_area:
     // Special case LoROM; the exception handler will dynamically load blocks
-    li t3, 0x10200000 // ROM appended to file
-    li t4, 0x7F0000
-    and t4, t4, t0 // Mirrored bank
-    srl t4, t4, 1 // 32KB every 64KB bank
-    add t3, t3, t4
-    li t4, 0x7FFF
-    and t4, t4, t0 // Offset within 32KB
-    add t3, t3, t4
-    b map_lonone
+    la   t3, 0x10104000 // ROM appended to file
+    li   t4, 0x7F0000
+    and  t4, t4, t0     // Mirrored bank
+    srl  t4, t4, 1      // 32KB every 64KB bank
+    add  t3, t3, t4
+    li   t4, 0x7FFF
+    and  t4, t4, t0     // Offset within 32KB
+    add  t3, t3, t4
+    b    map_lonone
 
 losram_area:
     // Check if this is a ROM or SRAM area
@@ -306,11 +306,11 @@ map_hirom:
     li t2, 0x2000 // Block size (8KB)
 
     // Set the SRAM mask using the header size
-    lw t9, 0xB020FFD8
-    srl t9, t9, 24
+    lw   t9, 0xB0113FD8
+    srl  t9, t9, 24
     beqz t9, build_himap
-    li t3, 0x400
-    sll t9, t3, t9
+    li   t3, 0x400
+    sll  t9, t3, t9
     addi t9, t9, -1
 
 build_himap:
@@ -347,11 +347,11 @@ hiwram_area:
 
 hirom_area:
     // Special case HiROM; the exception handler will dynamically load blocks
-    li t3, 0x10200000 // ROM appended to file
-    li t4, 0x3FFFFF // ROM mask
-    and t4, t4, t0
-    add t3, t3, t4
-    b map_hinone
+    la   t3, 0x10104000 // ROM appended to file
+    li   t4, 0x3FFFFF   // ROM mask
+    and  t4, t4, t0
+    add  t3, t3, t4
+    b    map_hinone
 
 hisram_area:
     // Special case SRAM so writes can be tracked

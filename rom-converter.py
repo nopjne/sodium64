@@ -28,7 +28,6 @@ for filename in os.listdir("."):
             convert = 1
         outFile = open("out/" + filename[:-4] + ".z64", "wb")
         outFile.write(baseFile.read())
-        outFile.seek(0x200000, 0)
         outFile.write(inFile.read())
 
 if convert == 1:
