@@ -108,7 +108,7 @@ read_iomap:
     .word read_a2axl, read_a2axh, read_ntrlx, read_unusedx // 0x4378-0x437B
     .word read_unk, read_unk, read_unk, read_unusedx // 0x437C-0x437F
     .word read_unk:(0x5FFF - 0x437F)                            // 0x4378-0x5FFF
-    .word read_extension:(0x7FAF - 0x5FFF)                      // 0x6000-0x7FAF
+    .word read_extension:(0x7FB0 - 0x5FFF)                      // 0x6000-0x7FAF
 
 .align 4
 write_iomap:
@@ -181,7 +181,7 @@ write_iomap:
     .word write_a2axl, write_a2axh, write_ntrlx, write_unusedx // 0x4378-0x437B
     .word write_unk, write_unk, write_unk, write_unusedx // 0x437C-0x437F
     .word write_unk:(0x5FFF - 0x437F)                                 // 0x4378-0x5FFF
-    .word write_extension:(0x7FAF - 0x5FFF)                           // 0x6000-0x7FAF
+    .word write_extension:(0x7FB0 - 0x5FFF)                           // 0x6000-0x7FAF
 
 .text
 
