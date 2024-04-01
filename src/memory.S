@@ -108,7 +108,7 @@ read_iomap:
     .word read_a2axl, read_a2axh, read_ntrlx, read_unusedx // 0x4378-0x437B
     .word read_unk, read_unk, read_unk, read_unusedx // 0x437C-0x437F
     .word read_unk:(0x5FFF - 0x437F)                            // 0x4378-0x5FFF
-    .word read_extension:(0x7FAF - 0x5FFF)                      // 0x6000-0x7FAF
+    .word read_extension:(0x7FB0 - 0x5FFF)                      // 0x6000-0x7FAF
 
 write_iomap:
     .word write_inidisp, write_obsel, write_oamaddl, write_oamaddh // 0x2100-0x2103
@@ -180,7 +180,7 @@ write_iomap:
     .word write_a2axl, write_a2axh, write_ntrlx, write_unusedx // 0x4378-0x437B
     .word write_unk, write_unk, write_unk, write_unusedx // 0x437C-0x437F
     .word write_unk:(0x5FFF - 0x437F)                                 // 0x4378-0x5FFF
-    .word write_extension:(0x7FAF - 0x5FFF)                           // 0x6000-0x7FAF
+    .word write_extension:(0x7FB0 - 0x5FFF)                           // 0x6000-0x7FAF
 
 .text
 
@@ -614,7 +614,7 @@ io_read8: // a0: address - v0: value
 
 .align 5
 read_extension:
-    bgeu t0, 0x7FAF - 0x2100, read_unk
+    bgeu t0, 0x7FB0 - 0x2100, read_unk
     sll  t0, t0, 2 // Word offset
     lhu  v0, 0xAA008400(t0)
     jr   ra
@@ -653,7 +653,7 @@ io_write8: // a0: address, a1: value
 
 .align 5
 write_extension:
-    bgeu t0, 0x7FAF - 0x2100, write_unk
+    bgeu t0, 0x7FB0 - 0x2100, write_unk
     sll  t0, t0, 2 // Word offset
     sb   a1, 0xAA008400(t0) // (0x2100 << 2) = 0x8400 this is added to t0 as t0 is lowered by 0x2100.
     lui  t2, 0xA460     // PI register upper address
