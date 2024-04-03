@@ -645,6 +645,10 @@ write_extension:
     sll  t0, t0, 2 // Word offset
     sb   a1, 0xAA008400(t0) // (0x2100 << 2) = 0x8400 this is added to t0 as t0 is lowered by 0x2100.
     lui  t2, 0xA460     // PI register upper address
+    // Don't wait on these addresses: addr == 0x7f47  addr == 0x7f4f
+    bne  a0, 0x7f47, pi_wait1
+    bne  a0, 0x7f4f, pi_wait1
+    jr   ra
 pi_wait1:
     // Wait for the IO to complete
     lw   t1, 0x0010(t2) // PI_STATUS
