@@ -505,7 +505,7 @@ tlbl_io:
     // Look up and return to an I/O read function if no memory is mapped
     andi a0, a0, 0xFFFF
     addi t0, a0, -0x2100
-    bgeu t0, 0x4380 - 0x2100, tlbl_unk
+    bgeu t0, 0x7FB0 - 0x2100, tlbl_unk
     sll t0, t0, 2
     lw k0, read_iomap(t0)
     mtc0 k0, $14 // EPC
@@ -573,7 +573,7 @@ tlbs_io:
     // Look up and return to an I/O write function if no memory is mapped
     andi a0, a0, 0xFFFF
     addi t0, a0, -0x2100
-    bgeu t0, 0x4380 - 0x2100, tlbs_unk
+    bgeu t0, 0x7FB0 - 0x2100, tlbs_unk
     sll t0, t0, 2
     lw k0, write_iomap(t0)
     mtc0 k0, $14 // EPC
@@ -612,10 +612,10 @@ tlbm_exception:
     mtc0 k0, $14 // EPC
     nop
     nop
-    eret    bgeu t0, 0x6000 - 0x2100, read_extension
+    eret
+
 .align 5
-read_extension
-    sll  t0, t0, 2 // Word offset
+read_extension:
     lhu  v0, 0xAA008400(t0)
     jr   ra
 
@@ -642,23 +642,21 @@ read_wmdata: // v0: value
 
 .align 5
 write_extension:
-    sll  t0, t0, 2 // Word offset
     sb   a1, 0xAA008400(t0) // (0x2100 << 2) = 0x8400 this is added to t0 as t0 is lowered by 0x2100.
     lui  t2, 0xA460     // PI register upper address
-    // Don't wait on these addresses: addr == 0x7f47  addr == 0x7f4f
-    bne  a0, 0x7f47, pi_wait1
-    bne  a0, 0x7f4f, pi_wait1
-    jr   ra
-pi_wait1:
+write_extension_wait1:
     // Wait for the IO to complete
     lw   t1, 0x0010(t2) // PI_STATUS
     andi t1, t1, 0x1    // DMA busy
-    bnez t1, pi_wait1
-pi_wait2:
+    bnez t1, write_extension_wait1
+    lui  t5, 0x5
+write_extension_wait2:
     lhu  t3, 0xAA008400(t0)
     andi t3, t3, 0xFF
     andi t4, a1, 0xFF
-    bne  t3, t4, pi_wait1
+    beqz t5, write_unk
+    addi t5, t5, -1
+    bne  t3, t4, write_extension_wait2
     jr   ra
 
 write_unk:
