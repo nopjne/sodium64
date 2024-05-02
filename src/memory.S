@@ -641,7 +641,7 @@ read_wmdata: // v0: value
     jr ra
 
 .align 5
-write_extension:
+write_extension: // a1: value, t0: address
     sb   a1, 0xAA008400(t0) // (0x2100 << 2) = 0x8400 this is added to t0 as t0 is lowered by 0x2100.
     lui  t2, 0xA460     // PI register upper address
 write_extension_wait1:
@@ -649,14 +649,6 @@ write_extension_wait1:
     lw   t1, 0x0010(t2) // PI_STATUS
     andi t1, t1, 0x1    // DMA busy
     bnez t1, write_extension_wait1
-    lui  t5, 0x5
-write_extension_wait2:
-    lhu  t3, 0xAA008400(t0)
-    andi t3, t3, 0xFF
-    andi t4, a1, 0xFF
-    beqz t5, write_unk
-    addi t5, t5, -1
-    bne  t3, t4, write_extension_wait2
     jr   ra
 
 write_unk:

@@ -115,9 +115,9 @@ clear_vram:
 
     // Setup SRAM signal speed to something consistent but safe.
     lui  t0, 0xA460       // PI register upper address
-    li   t1, 0x20
+    li   t1, 0x06
     sw   t1, 0x0024(t0)   // LAT
-    li   t1, 0x0C
+    li   t1, 0x0B
     sw   t1, 0x0028(t0)   // PWD
     li   t1, 0x07
     sw   t1, 0x002C(t0)   // PGS
