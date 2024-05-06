@@ -464,15 +464,75 @@ sustain_time: // t6: voice
     j update_step
 
 .align 5
+release_mode: // t6: voice, t8: offset
+    lhu t0, envelopes(t8)
+    addi t0, t0, -8
+    bltz t0, envelope_0
+    sh t0, envelopes(t8)
+    jr ra
+
+.align 5
+envelope_0: // t6: voice, t8: offset
+    sh zero, envelopes(t8)
+    jr ra
+
+.align 5
 gain_mode: // t6: voice
+    sll t1, t6, 4
+    lbu t0, dsp_regs + 0x7(t1) // VxGAIN
+    srl t2, t0, 5 //
+    blt t2, 0x4, gain_direct
+    andi a0, t0, 0x1F
+    beq t2, 0x4, gain_dec_lin
+    blt t2, 0x6, gain_dec_exp
+gain_inc_lin: // t1:offset t2:mode a0:rate
+    //env += 0x20;
+    lhu t3, envelopes(t1)
+    addi t3, t3, 0x20
+    sh t3, envelopes(t1)
+    bge t2, 0x6, gain_inc_lin_2
+    j update_step
+gain_inc_lin_2: // t1:offset t2:mode a0:rate
+    //if ( mode > 6 && (unsigned) v->hidden_env >= 0x600 )
+    //    env += 0x8 - 0x20; // 7: two-slope linear increase
+    lhu t2, envelopes(t1)
+    addi t2, t2, -24
+    sh t2, envelopes(t1)
+    jr ra
+
+gain_direct: // t0:env_data, t1:voice offset
+    //env = env_data * 0x10;
+    // rate = 31;
+    sll t2, t0, 2
+    sh t2, envelopes(t1)
+    li a0, 31
+    j update_step
+
+gain_dec_lin: // t1:offset t2:mode a0:rate
+    //env -= 0x20;
+    lhu t2, envelopes(t1)
+    addi t2, t2, -0x20
+    sh t2, envelopes(t1)
+    j update_step
+
+gain_dec_exp: // t1:offset t2:mode a0:rate
+    //env--;
+    //env -= env >> 8;
+    lhu t2, envelopes(t1)
+    addi t2, t2, -1
+    srl t3, t2, 8
+    sub t2, t2, t3
+    sh t2, envelopes(t1)
+    j update_step
+
 gain_time: // t6: voice
     // Stub gain mode by fixing the volume to max
     // TODO: actually implement gain mode
-    sll t1, t6, 4
-    li t0, 0x7FF
-    sh t0, envelopes(t1)
-    li t0, 0xFFFF
-    sh t0, next_steps(t1)
+    //sll t1, t6, 4
+    //li t0, 0x7FF
+    //sh t0, envelopes(t1)
+    //li t0, 0xFFFF
+    //sh t0, next_steps(t1)
     j update_vols
 
 .align 5
@@ -625,6 +685,14 @@ kon_end:
 
 .align 5
 write_koff: // a1: value
+    // Setting 1 to the KOFF bit will transition the voice to the Release
+    // state. Thus, the envelope will decrease by 8 every sample (regardless
+    // of the VxADSR and VxGAIN settings) until it reaches 0, where it will
+    // stay until the next KON.
+
+    //la t0, release_mode
+    //sw t0, mode_funcs(t4)
+
     // Set voices to disabled
     lbu t0, enabled
     xori t1, a1, 0xFF
